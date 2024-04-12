@@ -47,4 +47,5 @@
     <string name="all">Tout</string>
     <string name="in_progress">En cours</string>
     <string name="title_activity_changes">Historique des changements</string>
+    <string name="all_publishers">Tous les proclamateurs</string>
 </resources>

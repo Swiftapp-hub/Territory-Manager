@@ -148,8 +148,7 @@ fun TerritoriesPage(database: TerritoryDatabase, navController: NavController) {
 
         Box(modifier = Modifier
             .fillMaxWidth()
-            .padding(0.dp, 4.dp)
-            .height(IntrinsicSize.Min)) {
+            .padding(0.dp, 4.dp)) {
             Row(
                 modifier = Modifier.horizontalScroll(rememberScrollState()),
             ) {
@@ -161,7 +160,7 @@ fun TerritoriesPage(database: TerritoryDatabase, navController: NavController) {
                 )
 
                 if (status != 1)
-                    names.value?.split(',')?.sortedBy { it }?.let { listOf("Tous les proclamateurs", *it.toTypedArray()) }?.let { list ->
+                    names.value?.split(',')?.sortedBy { it }?.let { listOf(stringResource(R.string.all_publishers), *it.toTypedArray()) }?.let { list ->
                         ChipWithSubItems(
                             chipLabel = "",
                             chipItems = list,
@@ -213,7 +212,7 @@ fun TerritoriesPage(database: TerritoryDatabase, navController: NavController) {
                 )
             }
         } else {
-            Box(modifier = Modifier.weight(2f).height(500.dp)) {
+            Box(modifier = Modifier.weight(2f)) {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                     item {
                         Spacer(modifier = Modifier.height(15.dp))
