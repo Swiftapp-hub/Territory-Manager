@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -84,11 +85,12 @@ class SettingsActivity : ComponentActivity() {
                     val uri = result.data?.data
                     if (uri != null) {
                         lifecycleScope.launch {
-                            db.territoryDao().exportAll().collect {t ->
-                                db.territoryDao().exportAllChanges().collect {tc ->
+                            db.territoryDao().exportAll().collect { t ->
+                                db.territoryDao().exportAllChanges().collect { tc ->
                                     val names = getNameList(this@SettingsActivity)
                                     val gson =
-                                        GsonBuilder().serializeNulls().disableHtmlEscaping().create()
+                                        GsonBuilder().serializeNulls().disableHtmlEscaping()
+                                            .create()
 
                                     val json = JsonObject()
                                     json.addProperty("names", names)
@@ -131,7 +133,8 @@ class SettingsActivity : ComponentActivity() {
 
                                 db.territoryDao().deleteAll()
                                 json.get("territories").asJsonArray.forEach {
-                                    db.territoryDao().insert(gson.fromJson(it, Territory::class.java))
+                                    db.territoryDao()
+                                        .insert(gson.fromJson(it, Territory::class.java))
                                 }
                             }
                         } catch (e: IOException) {
@@ -157,7 +160,7 @@ class SettingsActivity : ComponentActivity() {
                                 navigationIcon = {
                                     IconButton(onClick = { onBackPressedDispatcher.onBackPressed() }) {
                                         Icon(
-                                            imageVector = Icons.Default.ArrowBack,
+                                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                             contentDescription = stringResource(R.string.back)
                                         )
                                     }

@@ -1,5 +1,6 @@
 package fr.swiftapp.territorymanager.ui.pages
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -75,7 +77,8 @@ fun TerritoriesPage(database: TerritoryDatabase, navController: NavController) {
 
     val names = getNameListAsFlow(LocalContext.current).collectAsState(initial = "")
 
-    val territories = database.territoryDao().getAll(if (isShops) 1 else 0).collectAsState(initial = emptyList())
+    val territories =
+        database.territoryDao().getAll(if (isShops) 1 else 0).collectAsState(initial = emptyList())
     val finalList = remember {
         mutableStateListOf<Territory>()
     }
@@ -97,18 +100,21 @@ fun TerritoriesPage(database: TerritoryDatabase, navController: NavController) {
             }
 
             1 -> {
-                tmpTerritories.addAll(territories.value.filter { it.isAvailable }.sortedBy { it.returnDate })
+                tmpTerritories.addAll(territories.value.filter { it.isAvailable }
+                    .sortedBy { it.returnDate })
                 publisher = 0
             }
 
             2 -> {
-                tmpTerritories.addAll(territories.value.filter { !it.isAvailable }.sortedBy { it.givenDate })
+                tmpTerritories.addAll(territories.value.filter { !it.isAvailable }
+                    .sortedBy { it.givenDate })
             }
         }
 
         if (publisher > 0) {
             finalList.addAll(tmpTerritories.filter {
-                it.givenName == names.value?.split(',')?.sortedBy { it }?.get(publisher - 1) && !it.isAvailable
+                it.givenName == names.value?.split(',')?.sortedBy { it }
+                    ?.get(publisher - 1) && !it.isAvailable
             })
         } else {
             finalList.addAll(tmpTerritories)
@@ -146,21 +152,35 @@ fun TerritoriesPage(database: TerritoryDatabase, navController: NavController) {
             onClick = { isShops = it == 1 }
         )
 
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .padding(0.dp, 4.dp)) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Min)
+        ) {
             Row(
-                modifier = Modifier.horizontalScroll(rememberScrollState()),
+                modifier = Modifier
+                    .horizontalScroll(rememberScrollState())
+                    .height(50.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 ChipWithSubItems(
                     chipLabel = "Status : ",
-                    chipItems = listOf(stringResource(R.string.all), stringResource(id = R.string.available), stringResource(R.string.in_progress)),
+                    chipItems = listOf(
+                        stringResource(R.string.all),
+                        stringResource(id = R.string.available),
+                        stringResource(R.string.in_progress)
+                    ),
                     onClick = { status = it },
                     value = status
                 )
 
                 if (status != 1)
-                    names.value?.split(',')?.sortedBy { it }?.let { listOf(stringResource(R.string.all_publishers), *it.toTypedArray()) }?.let { list ->
+                    names.value?.split(',')?.sortedBy { it }?.let {
+                        listOf(
+                            stringResource(R.string.all_publishers),
+                            *it.toTypedArray()
+                        )
+                    }?.let { list ->
                         ChipWithSubItems(
                             chipLabel = "",
                             chipItems = list,
@@ -174,7 +194,8 @@ fun TerritoriesPage(database: TerritoryDatabase, navController: NavController) {
 
             Spacer(
                 Modifier
-                    .width(10.dp)
+                    .align(Alignment.TopStart)
+                    .requiredWidth(10.dp)
                     .fillMaxHeight()
                     .background(
                         brush = Brush.horizontalGradient(
@@ -184,12 +205,11 @@ fun TerritoriesPage(database: TerritoryDatabase, navController: NavController) {
                             )
                         )
                     )
-                    .align(Alignment.CenterStart)
             )
 
             Spacer(
                 Modifier
-                    .width(10.dp)
+                    .requiredWidth(10.dp)
                     .fillMaxHeight()
                     .background(
                         brush = Brush.horizontalGradient(
@@ -199,12 +219,15 @@ fun TerritoriesPage(database: TerritoryDatabase, navController: NavController) {
                             )
                         )
                     )
-                    .align(Alignment.CenterEnd)
+                    .align(Alignment.TopEnd)
             )
         }
 
         if (finalList.isEmpty()) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
                 Text(
                     text = stringResource(R.string.no_territories),
                     fontSize = 25.sp,
@@ -212,8 +235,8 @@ fun TerritoriesPage(database: TerritoryDatabase, navController: NavController) {
                 )
             }
         } else {
-            Box(modifier = Modifier.weight(2f)) {
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                LazyColumn(modifier = Modifier.matchParentSize()) {
                     item {
                         Spacer(modifier = Modifier.height(15.dp))
                     }
@@ -225,14 +248,16 @@ fun TerritoriesPage(database: TerritoryDatabase, navController: NavController) {
                                 true,
                                 { updateItem(it) },
                                 {
-                                    navController.navigate("EditTerritory/${territory.id}", navOptions {
-                                        popUpTo(navController.graph.findStartDestination().id) {
-                                            saveState = true
-                                        }
+                                    navController.navigate(
+                                        "EditTerritory/${territory.id}",
+                                        navOptions {
+                                            popUpTo(navController.graph.findStartDestination().id) {
+                                                saveState = true
+                                            }
 
-                                        launchSingleTop = true
-                                        restoreState = true
-                                    })
+                                            launchSingleTop = true
+                                            restoreState = true
+                                        })
                                 }
                             )
                         }

@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AlertDialogDefaults
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -81,7 +82,7 @@ fun DialogName(isOpen: Boolean, close: (name: String?) -> Unit) {
             }
         }
 
-        AlertDialog(
+        BasicAlertDialog(
             onDismissRequest = {
                 close(null)
             }
@@ -121,7 +122,12 @@ fun DialogName(isOpen: Boolean, close: (name: String?) -> Unit) {
                         item {
                             DropdownMenuItem(
                                 onClick = {
-                                    if (name.isNotBlank() && !names.any { it.equals(name, ignoreCase = true) }) {
+                                    if (name.isNotBlank() && !names.any {
+                                            it.equals(
+                                                name,
+                                                ignoreCase = true
+                                            )
+                                        }) {
                                         names.add(name)
                                         updateNames()
                                         close(name)
@@ -130,7 +136,12 @@ fun DialogName(isOpen: Boolean, close: (name: String?) -> Unit) {
                                 text = {
                                     Text(text = stringResource(R.string.save_and_assign))
                                 },
-                                enabled = name.isNotBlank() && !names.any { it.equals(name, ignoreCase = true) }
+                                enabled = name.isNotBlank() && !names.any {
+                                    it.equals(
+                                        name,
+                                        ignoreCase = true
+                                    )
+                                }
                             )
                         }
                         items(namesDropDown) {
