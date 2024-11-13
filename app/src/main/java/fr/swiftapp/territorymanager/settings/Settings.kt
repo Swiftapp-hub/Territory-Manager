@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
@@ -19,7 +20,7 @@ private object PreferencesKeys {
 suspend fun getNameList(context: Context): String {
     return context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.NAMES] ?: ""
-    }.first().toString()
+    }.firstOrNull() ?: ""
 }
 
 fun getNameListAsFlow(context: Context): Flow<String?> {

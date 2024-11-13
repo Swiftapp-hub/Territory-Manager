@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
@@ -32,7 +31,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.NavDeepLink
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
@@ -101,8 +99,7 @@ fun NavPage() {
                 },
                 actions = {
                     IconButton(onClick = {
-                        startActivity(
-                            context,
+                        context.startActivity(
                             Intent(context, ChangesActivity::class.java),
                             null
                         )
@@ -113,8 +110,7 @@ fun NavPage() {
                         )
                     }
                     IconButton(onClick = {
-                        startActivity(
-                            context,
+                        context.startActivity(
                             Intent(context, SettingsActivity::class.java),
                             null
                         )

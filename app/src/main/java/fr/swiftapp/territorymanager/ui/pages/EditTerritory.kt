@@ -84,7 +84,7 @@ fun EditTerritory(database: TerritoryDatabase, navController: NavHostController,
     }
 
     val coroutineScope = rememberCoroutineScope()
-    val updatetItem: () -> Unit = {
+    val updatedItem: () -> Unit = {
         val newTerritory = territory?.let {
             Territory(
                 id = it.id,
@@ -151,9 +151,9 @@ fun EditTerritory(database: TerritoryDatabase, navController: NavHostController,
             label = { Text(stringResource(R.string.territory_name)) },
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(
-                autoCorrect = true,
-                imeAction = ImeAction.Next,
-                capitalization = KeyboardCapitalization.Words
+                capitalization = KeyboardCapitalization.Words,
+                autoCorrectEnabled = true,
+                imeAction = ImeAction.Next
             )
         )
 
@@ -186,8 +186,8 @@ fun EditTerritory(database: TerritoryDatabase, navController: NavHostController,
             label = { Text(stringResource(R.string.name_of_publisher)) },
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(
-                autoCorrect = true,
-                capitalization = KeyboardCapitalization.Words
+                capitalization = KeyboardCapitalization.Words,
+                autoCorrectEnabled = true
             )
         )
 
@@ -198,7 +198,7 @@ fun EditTerritory(database: TerritoryDatabase, navController: NavHostController,
                 error = true
             else if (givenName.isBlank() && givenDate.isNotBlank()) error = true
             else {
-                updatetItem()
+                updatedItem()
                 navController.popBackStack()
             }
         }) {

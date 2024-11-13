@@ -6,12 +6,11 @@ plugins {
 
 android {
     namespace = "fr.swiftapp.territorymanager"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "fr.swiftapp.territorymanager"
         minSdk = 29
-        targetSdk = 34
         versionCode = 4
         versionName = "1.0.0-beta01"
 

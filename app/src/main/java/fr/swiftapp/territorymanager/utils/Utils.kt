@@ -6,7 +6,7 @@ import java.util.Locale
 
 fun formatDate(textDate: String): String {
     if (textDate.length != 6) {
-        return "Date invalide"
+        return "Invalid date"
     }
 
     val jour = textDate.substring(0, 2)

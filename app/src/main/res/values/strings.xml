@@ -26,7 +26,7 @@
     <string name="check_values">Check the values</string>
     <string name="no_territories">No territories</string>
     <string name="release_date_dd_mm_yy">Release date (dd/mm/yy)</string>
-    <string name="return_date_dd_mm_yy">Date de retour (jj/mm/aa)</string>
+    <string name="return_date_dd_mm_yy">Return date (dd/mm/yy)</string>
     <string name="deletion">Deletion</string>
     <string name="deletion_confirm">Do you really want to delete this territory?</string>
     <string name="confirmation">Confirmation</string>

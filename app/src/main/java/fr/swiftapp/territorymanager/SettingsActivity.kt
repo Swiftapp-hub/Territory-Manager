@@ -21,7 +21,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -45,8 +44,13 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
@@ -56,7 +60,6 @@ import fr.swiftapp.territorymanager.data.Territory
 import fr.swiftapp.territorymanager.data.TerritoryDatabase
 import fr.swiftapp.territorymanager.settings.getNameList
 import fr.swiftapp.territorymanager.settings.updateNamesList
-import fr.swiftapp.territorymanager.ui.components.HyperlinkText
 import fr.swiftapp.territorymanager.ui.dialogs.ConfirmationDialog
 import fr.swiftapp.territorymanager.ui.dialogs.ViewNamesDialog
 import fr.swiftapp.territorymanager.ui.theme.TerritoryManagerTheme
@@ -74,7 +77,7 @@ class SettingsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        versionName = packageManager.getPackageInfo(packageName, 0).versionName
+        versionName = packageManager.getPackageInfo(packageName, 0).versionName ?: "Unknown"
 
         val db = TerritoryDatabase.getDatabase(this)
 
@@ -358,18 +361,22 @@ fun SettingsItems(padding: PaddingValues) {
         )
         Spacer(modifier = Modifier.height(10.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = stringResource(R.string.project_github_info),
-            )
-            HyperlinkText(
-                fullText = "GitHub",
-                hyperLinks = mapOf(
-                    "GitHub" to "https://github.com/Swiftapp-hub/Territory-Manager"
-                ),
-                linkTextColor = MaterialTheme.colorScheme.primary,
-                linkTextFontWeight = FontWeight.Bold,
-                linkTextDecoration = TextDecoration.Underline
-            )
+            Text(buildAnnotatedString {
+                append(stringResource(R.string.project_github_info))
+                withLink(
+                    LinkAnnotation.Url(
+                        url = "https://github.com/Swiftapp-hub/Territory-Manager",
+                        styles = TextLinkStyles(
+                            style = SpanStyle(
+                                color = MaterialTheme.colorScheme.primary,
+                                textDecoration = TextDecoration.Underline
+                            )
+                        )
+                    )
+                ) {
+                    append("GitHub")
+                }
+            })
         }
 
         Spacer(modifier = Modifier.height(30.dp))
