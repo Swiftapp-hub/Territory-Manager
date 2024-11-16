@@ -97,7 +97,9 @@ fun ViewNamesDialog(
                                     .background(
                                         brush = Brush.verticalGradient(
                                             colors = listOf(
-                                                MaterialTheme.colorScheme.surfaceColorAtElevation(AlertDialogDefaults.TonalElevation),
+                                                MaterialTheme.colorScheme.surfaceColorAtElevation(
+                                                    AlertDialogDefaults.TonalElevation
+                                                ),
                                                 Color.Transparent
                                             )
                                         )
@@ -112,7 +114,9 @@ fun ViewNamesDialog(
                                         brush = Brush.verticalGradient(
                                             colors = listOf(
                                                 Color.Transparent,
-                                                MaterialTheme.colorScheme.surfaceColorAtElevation(AlertDialogDefaults.TonalElevation)
+                                                MaterialTheme.colorScheme.surfaceColorAtElevation(
+                                                    AlertDialogDefaults.TonalElevation
+                                                )
                                             )
                                         )
                                     )
@@ -120,7 +124,10 @@ fun ViewNamesDialog(
                             )
                         }
                     else
-                        Text(text = stringResource(R.string.no_names))
+                        Text(
+                            text = stringResource(R.string.no_names),
+                            modifier = Modifier.padding(10.dp)
+                        )
 
                     Spacer(modifier = Modifier.height(15.dp))
                     Row {
