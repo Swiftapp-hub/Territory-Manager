@@ -172,7 +172,7 @@ fun TerritoriesPage(database: TerritoryDatabase, navController: NavController) {
                 )
 
                 if (status != 1)
-                    names.value?.split(',')?.sortedBy { it }?.let {
+                    names.value?.split(',')?.filter { it.isNotBlank() }?.sortedBy { it }?.let {
                         listOf(
                             stringResource(R.string.all_publishers),
                             *it.toTypedArray()
