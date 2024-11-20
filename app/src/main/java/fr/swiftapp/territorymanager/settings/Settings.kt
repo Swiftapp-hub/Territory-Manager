@@ -7,7 +7,6 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 
@@ -15,6 +14,7 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "se
 
 private object PreferencesKeys {
     val NAMES = stringPreferencesKey("names")
+    val API_URL = stringPreferencesKey("api_url")
 }
 
 suspend fun getNameList(context: Context): String {
@@ -32,5 +32,17 @@ fun getNameListAsFlow(context: Context): Flow<String?> {
 suspend fun updateNamesList(context: Context, names: String) {
     context.dataStore.edit { settings ->
         settings[PreferencesKeys.NAMES] = names
+    }
+}
+
+fun getApiUrlAsFlow(context: Context): Flow<String?> {
+    return context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.API_URL] ?: ""
+    }
+}
+
+suspend fun updateApiUrl(context: Context, url: String) {
+    context.dataStore.edit { settings ->
+        settings[PreferencesKeys.API_URL] = url
     }
 }

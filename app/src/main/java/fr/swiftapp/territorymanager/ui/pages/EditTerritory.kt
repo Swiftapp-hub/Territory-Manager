@@ -124,9 +124,14 @@ fun EditTerritory(database: TerritoryDatabase, navController: NavHostController,
             .padding(10.dp, 0.dp)
     ) {
         MaterialButtonToggleGroup(
-            items = listOf(stringResource(id = R.string.territories), stringResource(R.string.shops)),
+            items = listOf(
+                stringResource(id = R.string.territories),
+                stringResource(R.string.shops)
+            ),
             value = if (isShops) 1 else 0,
-            modifier = Modifier.fillMaxWidth().padding(0.dp, 10.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(0.dp, 10.dp),
             onClick = { isShops = it == 1 }
         )
 
@@ -233,7 +238,10 @@ fun EditTerritory(database: TerritoryDatabase, navController: NavHostController,
                     tint = MaterialTheme.colorScheme.onErrorContainer
                 )
                 Spacer(modifier = Modifier.width(6.dp))
-                Text(text = stringResource(R.string.delete), color = MaterialTheme.colorScheme.onErrorContainer)
+                Text(
+                    text = stringResource(R.string.delete),
+                    color = MaterialTheme.colorScheme.onErrorContainer
+                )
             }
         }
 
@@ -250,9 +258,7 @@ fun EditTerritory(database: TerritoryDatabase, navController: NavHostController,
     if (showDialog)
         ConfirmationDialog(
             title = stringResource(R.string.deletion),
-            message = stringResource(R.string.deletion_confirm),
             confirmButtonColor = MaterialTheme.colorScheme.errorContainer,
-            confirmButtonTextColor = MaterialTheme.colorScheme.onErrorContainer,
             confirmButtonText = stringResource(R.string.delete),
             onConfirm = {
                 showDialog = false
@@ -261,5 +267,8 @@ fun EditTerritory(database: TerritoryDatabase, navController: NavHostController,
             },
             onCancel = {
                 showDialog = false
-            })
+            }
+        ) {
+            Text(text = stringResource(R.string.deletion_confirm))
+        }
 }

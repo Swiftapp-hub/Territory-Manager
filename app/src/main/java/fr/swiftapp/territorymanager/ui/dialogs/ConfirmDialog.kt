@@ -14,12 +14,12 @@ import fr.swiftapp.territorymanager.R
 @Composable
 fun ConfirmationDialog(
     title: String,
-    message: String,
     confirmButtonColor: Color,
-    confirmButtonTextColor: Color,
     confirmButtonText: String,
+    canConfirm: Boolean = true,
     onConfirm: () -> Unit,
-    onCancel: () -> Unit
+    onCancel: () -> Unit,
+    content: @Composable () -> Unit
 ) {
     AlertDialog(
         onDismissRequest = {
@@ -27,12 +27,13 @@ fun ConfirmationDialog(
         },
         confirmButton = {
             Button(
+                enabled = canConfirm,
                 onClick = { onConfirm() },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = confirmButtonColor
                 )
             ) {
-                Text(text = confirmButtonText, color = confirmButtonTextColor)
+                Text(text = confirmButtonText)
             }
         },
         dismissButton = {
@@ -50,8 +51,6 @@ fun ConfirmationDialog(
                 color = MaterialTheme.colorScheme.primary
             )
         },
-        text = {
-            Text(text = message)
-        }
+        text = content
     )
 }

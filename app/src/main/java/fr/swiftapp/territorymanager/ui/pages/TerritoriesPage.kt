@@ -130,7 +130,7 @@ fun TerritoriesPage(database: TerritoryDatabase, navController: NavController) {
                     chipItems = listOf(
                         stringResource(R.string.all),
                         stringResource(id = R.string.available),
-                        stringResource(R.string.in_progress)
+                        stringResource(R.string.work_in_progress)
                     ),
                     onClick = { status = it },
                     value = status

@@ -2,6 +2,7 @@ package fr.swiftapp.territorymanager
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Patterns
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
@@ -26,14 +27,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -58,7 +60,10 @@ import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import fr.swiftapp.territorymanager.data.Territory
 import fr.swiftapp.territorymanager.data.TerritoryDatabase
+import fr.swiftapp.territorymanager.settings.getApiUrlAsFlow
 import fr.swiftapp.territorymanager.settings.getNameList
+import fr.swiftapp.territorymanager.settings.getNameListAsFlow
+import fr.swiftapp.territorymanager.settings.updateApiUrl
 import fr.swiftapp.territorymanager.settings.updateNamesList
 import fr.swiftapp.territorymanager.ui.dialogs.ConfirmationDialog
 import fr.swiftapp.territorymanager.ui.dialogs.ViewNamesDialog
@@ -187,39 +192,40 @@ class SettingsActivity : ComponentActivity() {
 @Composable
 fun SettingsItems(padding: PaddingValues) {
     val context = LocalContext.current
-    val openDialog = remember { mutableStateOf(false) }
-    val names = remember { mutableStateListOf<String>() }
-
+    var openDialog by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
-    val getAll: () -> Unit = {
+
+    val names =
+        getNameListAsFlow(context).collectAsState(initial = "")
+            .value?.split(',')?.filter { it.isNotBlank() }?.sortedBy { it }
+    val updateNames: (index: Int) -> Unit = { index ->
         coroutineScope.launch {
-            val data = getNameList(context)
-            names.clear()
-            if (data != "") names.addAll(data.split(','))
+            val newNames = names?.filterIndexed { i, _ -> i != index } ?: emptyList()
+            updateNamesList(context, newNames.joinToString(","))
         }
     }
 
-    val updateNames: () -> Unit = {
+    val apiUrl = getApiUrlAsFlow(context).collectAsState(initial = "")
+    val updateApiUrl: (url: String) -> Unit = { url ->
         coroutineScope.launch {
-            updateNamesList(context, names.joinToString(","))
+            updateApiUrl(context, url)
         }
     }
 
-    ViewNamesDialog(
-        isOpen = openDialog.value,
-        names = names,
-        close = { openDialog.value = false },
-        updateNames = { i -> names.removeAt(i); updateNames() }
-    )
+    if (names != null) {
+        ViewNamesDialog(
+            isOpen = openDialog,
+            names = names,
+            close = { openDialog = false },
+            updateNames = { i -> updateNames(i) }
+        )
+    }
 
     var confirmVisible by remember { mutableStateOf(false) }
-
     if (confirmVisible) {
         ConfirmationDialog(
             title = stringResource(R.string.import_backup),
-            message = stringResource(R.string.import_warning),
             confirmButtonColor = MaterialTheme.colorScheme.primary,
-            confirmButtonTextColor = MaterialTheme.colorScheme.onPrimary,
             confirmButtonText = stringResource(R.string.confirm),
             onConfirm = {
                 val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
@@ -229,7 +235,38 @@ fun SettingsItems(padding: PaddingValues) {
 
                 loadFileLauncher.launch(intent)
                 confirmVisible = false
-            }, { confirmVisible = false })
+            },
+            onCancel = { confirmVisible = false }
+        ) {
+            Text(stringResource(R.string.import_warning))
+        }
+    }
+
+    var editUrlVisible by remember { mutableStateOf(false) }
+    if (editUrlVisible) {
+        var url by remember { mutableStateOf(apiUrl.value ?: "") }
+
+        ConfirmationDialog(
+            title = stringResource(R.string.api_url),
+            confirmButtonColor = MaterialTheme.colorScheme.primary,
+            confirmButtonText = stringResource(R.string.confirm),
+            canConfirm = url.isEmpty() || Patterns.WEB_URL.matcher(url).matches(),
+            onConfirm = {
+                updateApiUrl(url)
+                editUrlVisible = false
+            },
+            onCancel = { editUrlVisible = false }
+        ) {
+            Column {
+                Text(stringResource(R.string.api_url_info))
+                Spacer(modifier = Modifier.height(10.dp))
+                OutlinedTextField(
+                    value = url,
+                    onValueChange = { url = it },
+                    label = { Text("Url") }
+                )
+            }
+        }
     }
 
     Column(
@@ -244,10 +281,7 @@ fun SettingsItems(padding: PaddingValues) {
             shape = MaterialTheme.shapes.large,
             modifier = Modifier
                 .fillMaxWidth(),
-            onClick = {
-                getAll()
-                openDialog.value = true
-            }
+            onClick = { openDialog = true }
         ) {
             Column(Modifier.padding(15.dp)) {
                 Text(
@@ -258,6 +292,30 @@ fun SettingsItems(padding: PaddingValues) {
                 Spacer(modifier = Modifier.height(5.dp))
                 Text(
                     text = stringResource(R.string.publishers_info),
+                    fontSize = 14.sp,
+                    lineHeight = 18.sp,
+                    color = MaterialTheme.colorScheme.outline
+                )
+            }
+        }
+
+        Surface(
+            color = MaterialTheme.colorScheme.secondaryContainer,
+            shape = MaterialTheme.shapes.large,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(0.dp, 20.dp, 0.dp, 0.dp),
+            onClick = { editUrlVisible = true }
+        ) {
+            Column(Modifier.padding(15.dp)) {
+                Text(
+                    text = stringResource(R.string.api_url),
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(5.dp))
+                Text(
+                    text = if (apiUrl.value?.isBlank() == true) stringResource(R.string.no_api_url) else "Url: ${apiUrl.value}",
                     fontSize = 14.sp,
                     lineHeight = 18.sp,
                     color = MaterialTheme.colorScheme.outline

@@ -63,15 +63,14 @@ fun TerritoryListItem(
     if (isConfirm)
         ConfirmationDialog(
             title = stringResource(R.string.confirmation),
-            message = stringResource(R.string.confirm_return_territory, territory.name),
             confirmButtonText = stringResource(R.string.confirm),
             confirmButtonColor = MaterialTheme.colorScheme.primary,
-            confirmButtonTextColor = MaterialTheme.colorScheme.onPrimary,
             onConfirm = {
                 onSave(
                     territory.copy(
                         isAvailable = true,
-                        returnDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
+                        returnDate = LocalDate.now()
+                            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
                     )
                 )
                 isConfirm = false
@@ -79,7 +78,9 @@ fun TerritoryListItem(
             onCancel = {
                 isConfirm = false
             }
-        )
+        ) {
+            Text(text = stringResource(R.string.confirm_return_territory, territory.name))
+        }
 
     Surface(
         color = MaterialTheme.colorScheme.secondaryContainer,
@@ -142,7 +143,9 @@ fun TerritoryListItem(
 
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    text = if (territory.isAvailable) stringResource(R.string.returned_on) else stringResource(R.string.released_on),
+                    text = if (territory.isAvailable) stringResource(R.string.returned_on) else stringResource(
+                        R.string.released_on
+                    ),
                     fontSize = 15.sp,
                     color = MaterialTheme.colorScheme.outline
                 )

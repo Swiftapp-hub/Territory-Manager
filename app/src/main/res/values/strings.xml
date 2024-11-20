@@ -46,6 +46,9 @@
     <string name="shops">Shops</string>
     <string name="title_activity_changes">Changes history</string>
     <string name="all">All</string>
-    <string name="in_progress">In progress</string>
+    <string name="work_in_progress">In progress</string>
     <string name="all_publishers">All publishers</string>
+    <string name="api_url">API url</string>
+    <string name="api_url_info">Enter an api url to sync data</string>
+    <string name="no_api_url">No url defined</string>
 </resources>

@@ -45,7 +45,10 @@
     <string name="territories_in">territoires rentré</string>
     <string name="shops">Commerces</string>
     <string name="all">Tout</string>
-    <string name="in_progress">En cours</string>
+    <string name="work_in_progress">En cours</string>
     <string name="title_activity_changes">Historique des changements</string>
     <string name="all_publishers">Tous les proclamateurs</string>
+    <string name="api_url">Url API</string>
+    <string name="api_url_info">Entrez un url api pour syncroniser les data</string>
+    <string name="no_api_url">Aucun url défini</string>
 </resources>

@@ -11,8 +11,8 @@ android {
     defaultConfig {
         applicationId = "fr.swiftapp.territorymanager"
         minSdk = 29
-        versionCode = 4
-        versionName = "1.0.0-beta01"
+        versionCode = 5
+        versionName = "1.0.0-beta02"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
