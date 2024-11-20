@@ -82,6 +82,7 @@ fun DialogName(isOpen: Boolean, close: (name: String?) -> Unit) {
 
         BasicAlertDialog(
             onDismissRequest = {
+                focusRequester.freeFocus()
                 close(null)
             }
         ) {
@@ -128,6 +129,7 @@ fun DialogName(isOpen: Boolean, close: (name: String?) -> Unit) {
                                         }) {
                                         names.add(name)
                                         updateNames()
+                                        focusRequester.freeFocus()
                                         close(name)
                                     }
                                 },
@@ -164,6 +166,7 @@ fun DialogName(isOpen: Boolean, close: (name: String?) -> Unit) {
                         )
                         TextButton(
                             onClick = {
+                                focusRequester.freeFocus()
                                 close(null)
                             }
                         ) {
@@ -172,6 +175,7 @@ fun DialogName(isOpen: Boolean, close: (name: String?) -> Unit) {
                         Spacer(modifier = Modifier.width(6.dp))
                         Button(
                             onClick = {
+                                focusRequester.freeFocus()
                                 close(name)
                             },
                             enabled = name.isNotBlank()

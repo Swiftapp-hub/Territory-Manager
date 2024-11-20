@@ -20,7 +20,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -42,9 +41,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.navOptions
@@ -59,26 +55,17 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun TerritoriesPage(database: TerritoryDatabase, navController: NavController) {
-    var isShops by rememberSaveable {
-        mutableStateOf(false)
-    }
-    var status by rememberSaveable {
-        mutableIntStateOf(0)
-    }
-    var publisher by remember {
-        mutableIntStateOf(0)
-    }
-    var publisherBkp by rememberSaveable {
-        mutableStateOf("")
-    }
+    var isShops by rememberSaveable { mutableStateOf(false) }
+    var status by rememberSaveable { mutableIntStateOf(0) }
+    var publisher by remember { mutableIntStateOf(0) }
 
-    val names = getNameListAsFlow(LocalContext.current).collectAsState(initial = "")
+    val names =
+        getNameListAsFlow(LocalContext.current).collectAsState(initial = "")
+            .value?.split(',')?.filter { it.isNotBlank() }?.sortedBy { it }
 
     val territories =
         database.territoryDao().getAll(if (isShops) 1 else 0).collectAsState(initial = emptyList())
-    val finalList = remember {
-        mutableStateListOf<Territory>()
-    }
+    val finalList = remember { mutableStateListOf<Territory>() }
 
     val coroutineScope = rememberCoroutineScope()
     val updateItem: (territory: Territory) -> Unit = { territory ->
@@ -110,32 +97,10 @@ fun TerritoriesPage(database: TerritoryDatabase, navController: NavController) {
 
         if (publisher > 0) {
             finalList.addAll(tmpTerritories.filter {
-                it.givenName == names.value?.split(',')?.sortedBy { it }
-                    ?.get(publisher - 1) && !it.isAvailable
+                it.givenName == names?.get(publisher - 1) && !it.isAvailable
             })
         } else {
             finalList.addAll(tmpTerritories)
-        }
-    }
-
-    val owner = LocalLifecycleOwner.current
-    DisposableEffect(owner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_PAUSE) {
-                if (publisher > 0)
-                    publisherBkp = names.value?.split(',')?.get(publisher - 1) ?: ""
-                publisher = 0
-            } else if (event == Lifecycle.Event.ON_RESUME) {
-                if (publisherBkp.isNotEmpty()) {
-                    val i = names.value?.split(',')?.indexOf(publisherBkp) ?: 0
-                    if (i >= 0) publisher = i + 1
-                }
-            }
-        }
-        owner.lifecycle.addObserver(observer)
-
-        onDispose {
-            owner.lifecycle.removeObserver(observer)
         }
     }
 
@@ -172,7 +137,7 @@ fun TerritoriesPage(database: TerritoryDatabase, navController: NavController) {
                 )
 
                 if (status != 1)
-                    names.value?.split(',')?.filter { it.isNotBlank() }?.sortedBy { it }?.let {
+                    names?.let {
                         listOf(
                             stringResource(R.string.all_publishers),
                             *it.toTypedArray()
