@@ -35,6 +35,12 @@ suspend fun updateNamesList(context: Context, names: String) {
     }
 }
 
+suspend fun getApiUrl(context: Context): String {
+    return context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.API_URL] ?: ""
+    }.firstOrNull() ?: ""
+}
+
 fun getApiUrlAsFlow(context: Context): Flow<String?> {
     return context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.API_URL] ?: ""

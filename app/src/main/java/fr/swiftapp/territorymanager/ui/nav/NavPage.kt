@@ -5,6 +5,7 @@ import android.content.Intent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
@@ -21,9 +23,20 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -45,23 +58,54 @@ import fr.swiftapp.territorymanager.ChangesActivity
 import fr.swiftapp.territorymanager.R
 import fr.swiftapp.territorymanager.SettingsActivity
 import fr.swiftapp.territorymanager.data.TerritoryDatabase
+import fr.swiftapp.territorymanager.data.api.ApiManager
 import fr.swiftapp.territorymanager.ui.pages.AddTerritoryPage
 import fr.swiftapp.territorymanager.ui.pages.EditTerritory
 import fr.swiftapp.territorymanager.ui.pages.TerritoriesPage
+import kotlinx.coroutines.launch
 
 @SuppressLint("RestrictedApi")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavPage() {
+    val snackbarHostState = remember { SnackbarHostState() }
     val navController = rememberNavController()
     val navBackStackEntry = navController.currentBackStackEntryAsState()
     val parentRouteName = navBackStackEntry.value?.destination?.route
 
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     val db = TerritoryDatabase.getDatabase(context)
 
+    val apiManager = remember { ApiManager(context) }
+    var loadFinished by rememberSaveable { mutableStateOf(false) }
+    var shouldRetry by rememberSaveable { mutableStateOf(true) }
+
+    val handleFinished: (e: Boolean) -> Unit = { isError ->
+        loadFinished = !isError
+        if (isError) {
+            scope.launch {
+                val result = snackbarHostState.showSnackbar(
+                    message = "Internet error !",
+                    actionLabel = "Retry",
+                    duration = SnackbarDuration.Indefinite
+                )
+                when (result) {
+                    SnackbarResult.Dismissed -> {}
+                    SnackbarResult.ActionPerformed -> shouldRetry = true
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(shouldRetry, Unit) {
+        if (shouldRetry) apiManager.updateLocal(handleFinished)
+        shouldRetry = false
+    }
+
     Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {
@@ -158,34 +202,47 @@ fun NavPage() {
         },
         floatingActionButtonPosition = FabPosition.Center
     ) {
-        NavHost(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(it),
-            navController = navController,
-            startDestination = "Territories"
-        ) {
-            navigation(startDestination = "Home", route = "Territories") {
-                composable("Home", deepLinks = listOf(NavDeepLink("deeplink://home"))) {
-                    TerritoriesPage(database = db, navController = navController)
+        if (loadFinished) {
+            NavHost(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(it),
+                navController = navController,
+                startDestination = "Territories"
+            ) {
+                navigation(startDestination = "Home", route = "Territories") {
+                    composable("Home", deepLinks = listOf(NavDeepLink("deeplink://home"))) {
+                        TerritoriesPage(database = db, navController = navController)
+                    }
+                    composable(
+                        "AddTerritory",
+                        deepLinks = listOf(NavDeepLink("deeplink://addTerritory"))
+                    ) {
+                        AddTerritoryPage(database = db, navController = navController)
+                    }
+                    composable(
+                        "EditTerritory/{territoryId}",
+                        arguments = listOf(navArgument("territoryId") { type = NavType.IntType }),
+                        deepLinks = listOf(NavDeepLink("deeplink://editTerritory/{territoryId}"))
+                    ) {
+                        EditTerritory(
+                            database = db,
+                            navController = navController,
+                            it.arguments?.getInt("territoryId")
+                        )
+                    }
                 }
-                composable(
-                    "AddTerritory",
-                    deepLinks = listOf(NavDeepLink("deeplink://addTerritory"))
-                ) {
-                    AddTerritoryPage(database = db, navController = navController)
-                }
-                composable(
-                    "EditTerritory/{territoryId}",
-                    arguments = listOf(navArgument("territoryId") { type = NavType.IntType }),
-                    deepLinks = listOf(NavDeepLink("deeplink://editTerritory/{territoryId}"))
-                ) {
-                    EditTerritory(
-                        database = db,
-                        navController = navController,
-                        it.arguments?.getInt("territoryId")
-                    )
-                }
+            }
+        } else {
+            Box(
+                modifier = Modifier
+                    .padding(it)
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant
+                )
             }
         }
     }

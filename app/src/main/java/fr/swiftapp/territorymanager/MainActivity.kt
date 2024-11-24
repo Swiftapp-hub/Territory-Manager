@@ -12,6 +12,7 @@ import fr.swiftapp.territorymanager.ui.theme.TerritoryManagerTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             TerritoryManagerTheme {
                 Surface(
