@@ -18,7 +18,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,6 +47,7 @@ fun ViewNamesDialog(
             Surface(
                 shape = MaterialTheme.shapes.extraLarge,
                 tonalElevation = AlertDialogDefaults.TonalElevation,
+                color = MaterialTheme.colorScheme.surfaceContainerHigh,
                 modifier = Modifier.height(400.dp)
             ) {
                 Column(
@@ -97,9 +97,7 @@ fun ViewNamesDialog(
                                     .background(
                                         brush = Brush.verticalGradient(
                                             colors = listOf(
-                                                MaterialTheme.colorScheme.surfaceColorAtElevation(
-                                                    AlertDialogDefaults.TonalElevation
-                                                ),
+                                                MaterialTheme.colorScheme.surfaceContainerHigh,
                                                 Color.Transparent
                                             )
                                         )
@@ -114,9 +112,7 @@ fun ViewNamesDialog(
                                         brush = Brush.verticalGradient(
                                             colors = listOf(
                                                 Color.Transparent,
-                                                MaterialTheme.colorScheme.surfaceColorAtElevation(
-                                                    AlertDialogDefaults.TonalElevation
-                                                )
+                                                MaterialTheme.colorScheme.surfaceContainerHigh
                                             )
                                         )
                                     )

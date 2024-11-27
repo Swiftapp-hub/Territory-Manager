@@ -227,6 +227,7 @@ fun SettingsItems(padding: PaddingValues) {
             title = stringResource(R.string.import_backup),
             confirmButtonColor = MaterialTheme.colorScheme.primary,
             confirmButtonText = stringResource(R.string.confirm),
+
             onConfirm = {
                 val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
                     addCategory(Intent.CATEGORY_OPENABLE)

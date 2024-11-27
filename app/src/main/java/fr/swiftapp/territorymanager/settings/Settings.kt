@@ -15,6 +15,7 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "se
 private object PreferencesKeys {
     val NAMES = stringPreferencesKey("names")
     val API_URL = stringPreferencesKey("api_url")
+    val LAST_LOCAL_UPDATE = stringPreferencesKey("last_local_update")
 }
 
 suspend fun getNameList(context: Context): String {
@@ -50,5 +51,17 @@ fun getApiUrlAsFlow(context: Context): Flow<String?> {
 suspend fun updateApiUrl(context: Context, url: String) {
     context.dataStore.edit { settings ->
         settings[PreferencesKeys.API_URL] = url
+    }
+}
+
+suspend fun getLastLocalUpdate(context: Context): String {
+    return context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.LAST_LOCAL_UPDATE] ?: ""
+    }.firstOrNull() ?: ""
+}
+
+suspend fun updateLastLocalUpdate(context: Context, date: String) {
+    context.dataStore.edit { settings ->
+        settings[PreferencesKeys.LAST_LOCAL_UPDATE] = date
     }
 }

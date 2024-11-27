@@ -91,6 +91,7 @@ fun DialogName(isOpen: Boolean, close: (name: String?) -> Unit) {
                     .wrapContentWidth()
                     .wrapContentHeight(),
                 shape = MaterialTheme.shapes.extraLarge,
+                color = MaterialTheme.colorScheme.surfaceContainerHigh,
                 tonalElevation = AlertDialogDefaults.TonalElevation
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
@@ -114,7 +115,7 @@ fun DialogName(isOpen: Boolean, close: (name: String?) -> Unit) {
                         modifier = Modifier
                             .heightIn(0.dp, 200.dp)
                             .background(
-                                MaterialTheme.colorScheme.surface,
+                                MaterialTheme.colorScheme.surfaceContainerHigh,
                                 MaterialTheme.shapes.medium
                             )
                     ) {

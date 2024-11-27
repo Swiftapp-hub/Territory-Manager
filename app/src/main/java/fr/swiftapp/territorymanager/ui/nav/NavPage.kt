@@ -78,7 +78,7 @@ fun NavPage() {
 
     val db = TerritoryDatabase.getDatabase(context)
 
-    val apiManager = remember { ApiManager(context) }
+    val apiManager = remember { ApiManager(context, db) }
     var loadFinished by rememberSaveable { mutableStateOf(false) }
     var shouldRetry by rememberSaveable { mutableStateOf(true) }
 

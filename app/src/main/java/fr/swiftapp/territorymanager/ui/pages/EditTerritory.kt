@@ -259,6 +259,7 @@ fun EditTerritory(database: TerritoryDatabase, navController: NavHostController,
         ConfirmationDialog(
             title = stringResource(R.string.deletion),
             confirmButtonColor = MaterialTheme.colorScheme.errorContainer,
+            confirmButtonTextColor = MaterialTheme.colorScheme.onErrorContainer,
             confirmButtonText = stringResource(R.string.delete),
             onConfirm = {
                 showDialog = false

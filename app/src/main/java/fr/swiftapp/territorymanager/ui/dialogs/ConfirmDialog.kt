@@ -16,6 +16,7 @@ fun ConfirmationDialog(
     title: String,
     confirmButtonColor: Color,
     confirmButtonText: String,
+    confirmButtonTextColor: Color = ButtonDefaults.buttonColors().contentColor,
     canConfirm: Boolean = true,
     onConfirm: () -> Unit,
     onCancel: () -> Unit,
@@ -30,7 +31,8 @@ fun ConfirmationDialog(
                 enabled = canConfirm,
                 onClick = { onConfirm() },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = confirmButtonColor
+                    containerColor = confirmButtonColor,
+                    contentColor = confirmButtonTextColor
                 )
             ) {
                 Text(text = confirmButtonText)
