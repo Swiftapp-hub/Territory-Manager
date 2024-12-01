@@ -11,6 +11,7 @@ android {
     defaultConfig {
         applicationId = "fr.swiftapp.territorymanager"
         minSdk = 29
+        targetSdk = 35
         versionCode = 5
         versionName = "1.0.0-beta02"
 
