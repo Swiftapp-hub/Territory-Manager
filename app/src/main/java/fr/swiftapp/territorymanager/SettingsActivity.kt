@@ -6,19 +6,27 @@ import android.util.Log
 import android.util.Patterns
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
+import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -162,35 +170,53 @@ class SettingsActivity : ComponentActivity() {
                 }
             }
 
+        enableEdgeToEdge()
         setContent {
             val scrollBehavior =
                 TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
             TerritoryManagerTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                ) {
-                    Scaffold(
-                        topBar = {
-                            LargeTopAppBar(
-                                navigationIcon = {
-                                    IconButton(onClick = { onBackPressedDispatcher.onBackPressed() }) {
-                                        Icon(
-                                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                            contentDescription = stringResource(R.string.back)
-                                        )
-                                    }
-                                },
-                                title = {
-                                    Text(text = stringResource(R.string.settings))
-                                },
-                                scrollBehavior = scrollBehavior
-                            )
-                        },
-                        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
+                Box(Modifier.fillMaxSize()) {
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
                     ) {
-                        SettingsItems(it, apiManager)
+                        Scaffold(
+                            topBar = {
+                                LargeTopAppBar(
+                                    navigationIcon = {
+                                        IconButton(onClick = { onBackPressedDispatcher.onBackPressed() }) {
+                                            Icon(
+                                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                                contentDescription = stringResource(R.string.back)
+                                            )
+                                        }
+                                    },
+                                    title = {
+                                        Text(text = stringResource(R.string.settings))
+                                    },
+                                    scrollBehavior = scrollBehavior
+                                )
+                            },
+                            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
+                        ) {
+                            SettingsItems(it, apiManager)
+                        }
                     }
+
+                    Spacer(
+                        modifier = Modifier
+                            .windowInsetsTopHeight(WindowInsets.statusBars)
+                            .fillMaxWidth()
+                            .align(Alignment.TopCenter)
+                            .background(MaterialTheme.colorScheme.surface)
+                    )
+                    Spacer(
+                        modifier = Modifier
+                            .windowInsetsBottomHeight(WindowInsets.navigationBars)
+                            .fillMaxWidth()
+                            .align(Alignment.BottomCenter)
+                            .background(MaterialTheme.colorScheme.background)
+                    )
                 }
             }
         }
