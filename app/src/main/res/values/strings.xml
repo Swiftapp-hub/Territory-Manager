@@ -51,4 +51,5 @@
     <string name="api_url">API url</string>
     <string name="api_url_info">Enter an api url to sync data</string>
     <string name="no_api_url">No url defined</string>
+    <string name="refresh">Refresh</string>
 </resources>

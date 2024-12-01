@@ -107,7 +107,7 @@ fun EditTerritory(database: TerritoryDatabase, navController: NavHostController,
         coroutineScope.launch {
             if (newTerritory != null) {
                 database.territoryDao().update(newTerritory)
-                apiManager.updateLocal {
+                apiManager.uploadChanges {
                     Log.d("MY", "Upload finished $it")
                 }
             }
@@ -118,7 +118,7 @@ fun EditTerritory(database: TerritoryDatabase, navController: NavHostController,
         coroutineScope.launch {
             if (territory != null) {
                 database.territoryDao().delete(territory)
-                apiManager.updateLocal {
+                apiManager.uploadChanges {
                     Log.d("MY", "Upload finished $it")
                 }
             }

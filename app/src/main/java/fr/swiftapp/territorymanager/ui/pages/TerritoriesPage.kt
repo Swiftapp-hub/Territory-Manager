@@ -76,7 +76,7 @@ fun TerritoriesPage(database: TerritoryDatabase, navController: NavController) {
     val updateItem: (territory: Territory) -> Unit = { territory ->
         coroutineScope.launch {
             database.territoryDao().update(territory)
-            apiManager.updateLocal {
+            apiManager.uploadChanges {
                 Log.d("MY", "Upload finished $it")
             }
         }

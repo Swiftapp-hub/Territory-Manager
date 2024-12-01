@@ -35,6 +35,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -209,9 +210,6 @@ fun SettingsItems(padding: PaddingValues, apiManager: ApiManager) {
         coroutineScope.launch {
             val newNames = names?.filterIndexed { i, _ -> i != index } ?: emptyList()
             updateNamesList(context, newNames.joinToString(","))
-            apiManager.uploadChanges {
-                Log.d("MY", "Upload finished $it")
-            }
         }
     }
 
@@ -219,6 +217,14 @@ fun SettingsItems(padding: PaddingValues, apiManager: ApiManager) {
     val updateApiUrl: (url: String) -> Unit = { url ->
         coroutineScope.launch {
             updateApiUrl(context, url)
+        }
+    }
+
+    LaunchedEffect(openDialog) {
+        if (!openDialog) {
+            apiManager.uploadChanges {
+                Log.d("MY", "Upload finished $it")
+            }
         }
     }
 
@@ -232,6 +238,7 @@ fun SettingsItems(padding: PaddingValues, apiManager: ApiManager) {
     }
 
     var confirmVisible by remember { mutableStateOf(false) }
+
     if (confirmVisible) {
         ConfirmationDialog(
             title = stringResource(R.string.import_backup),

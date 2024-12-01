@@ -54,7 +54,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navOptions
 import androidx.navigation.navigation
-import fr.swiftapp.territorymanager.ChangesActivity
 import fr.swiftapp.territorymanager.R
 import fr.swiftapp.territorymanager.SettingsActivity
 import fr.swiftapp.territorymanager.data.TerritoryDatabase
@@ -84,8 +83,8 @@ fun NavPage() {
 
     val handleFinished: (e: Boolean) -> Unit = { isError ->
         loadFinished = !isError
-        if (isError) {
-            scope.launch {
+        scope.launch {
+            if (isError) {
                 val result = snackbarHostState.showSnackbar(
                     message = "Internet error !",
                     actionLabel = "Retry",
@@ -95,6 +94,11 @@ fun NavPage() {
                     SnackbarResult.Dismissed -> {}
                     SnackbarResult.ActionPerformed -> shouldRetry = true
                 }
+            } else {
+                snackbarHostState.showSnackbar(
+                    message = "Refresh successful !",
+                    duration = SnackbarDuration.Short
+                )
             }
         }
     }
@@ -143,16 +147,26 @@ fun NavPage() {
                 },
                 actions = {
                     IconButton(onClick = {
-                        context.startActivity(
-                            Intent(context, ChangesActivity::class.java),
-                            null
-                        )
+                        apiManager.updateLocal {
+                            handleFinished(it)
+                        }
                     }) {
                         Icon(
-                            painter = painterResource(id = R.drawable.rounded_history_24),
-                            contentDescription = stringResource(R.string.settings)
+                            painter = painterResource(id = R.drawable.round_autorenew_24),
+                            contentDescription = stringResource(R.string.refresh)
                         )
                     }
+//                    IconButton(onClick = {
+//                        context.startActivity(
+//                            Intent(context, ChangesActivity::class.java),
+//                            null
+//                        )
+//                    }) {
+//                        Icon(
+//                            painter = painterResource(id = R.drawable.rounded_history_24),
+//                            contentDescription = stringResource(R.string.settings)
+//                        )
+//                    }
                     IconButton(onClick = {
                         context.startActivity(
                             Intent(context, SettingsActivity::class.java),

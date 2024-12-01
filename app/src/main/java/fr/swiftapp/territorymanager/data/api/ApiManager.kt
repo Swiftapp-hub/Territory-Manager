@@ -61,14 +61,14 @@ class ApiManager(
             requestQueue.add(req)
         }
 
-    private suspend fun uploadJson(apiUrl: String, json: JSONObject): String =
+    private suspend fun uploadJson(apiUrl: String, json: JSONObject): JSONObject =
         suspendCoroutine { cont ->
             val req = JsonObjectRequest(
                 Request.Method.PATCH,
                 apiUrl,
                 json,
                 { res ->
-                    cont.resumeWith(Result.success(res.toString()))
+                    cont.resumeWith(Result.success(res))
                 },
                 { error ->
                     cont.resumeWith(Result.failure(error))
@@ -81,6 +81,11 @@ class ApiManager(
         scope.launch {
             try {
                 val apiUrl = getApiUrl(context)
+                if (apiUrl.isBlank()) {
+                    Log.d("MY", "No api url")
+                    finished(false)
+                    return@launch
+                }
 
                 val lastUpdate = getLastUpdate(apiUrl)
                 val lastLocalUpdate = getLastLocalUpdate(context)
@@ -113,11 +118,17 @@ class ApiManager(
         scope.launch {
             try {
                 val apiUrl = getApiUrl(context)
+                if (apiUrl.isBlank()) {
+                    Log.d("MY", "No api url")
+                    finished(false)
+                    return@launch
+                }
 
                 val lastUpdate = getLastUpdate(apiUrl) ?: ""
                 val lastLocalUpdate = getLastLocalUpdate(context)
 
                 if (lastUpdate != lastLocalUpdate) {
+                    Log.d("MY", "Download remote changes")
                     updateLocal {
                         finished(true)
                     }
@@ -135,8 +146,9 @@ class ApiManager(
                             json.add("territories_changes", gson.toJsonTree(tc))
 
                             val date = uploadJson(apiUrl, JSONObject(json.toString()))
-                            updateLastLocalUpdate(context, date)
+                            updateLastLocalUpdate(context, date.getString("date"))
                             Log.d("MY", "date: $date")
+                            finished(false)
                         }
                     }
                 }
