@@ -2,6 +2,7 @@ package fr.swiftapp.territorymanager
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.util.Patterns
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -60,6 +61,7 @@ import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import fr.swiftapp.territorymanager.data.Territory
 import fr.swiftapp.territorymanager.data.TerritoryDatabase
+import fr.swiftapp.territorymanager.data.api.ApiManager
 import fr.swiftapp.territorymanager.settings.getApiUrlAsFlow
 import fr.swiftapp.territorymanager.settings.getNameList
 import fr.swiftapp.territorymanager.settings.getNameListAsFlow
@@ -85,6 +87,8 @@ class SettingsActivity : ComponentActivity() {
         versionName = packageManager.getPackageInfo(packageName, 0).versionName ?: "Unknown"
 
         val db = TerritoryDatabase.getDatabase(this)
+
+        val apiManager = ApiManager(this@SettingsActivity, db)
 
         val onBackPressedDispatcher = onBackPressedDispatcher
         saveFileLauncher =
@@ -144,6 +148,9 @@ class SettingsActivity : ComponentActivity() {
                                     db.territoryDao()
                                         .insert(gson.fromJson(it, Territory::class.java))
                                 }
+                                apiManager.uploadChanges {
+                                    Log.d("MY", "Upload finish $it")
+                                }
                             }
                         } catch (e: IOException) {
                             e.printStackTrace()
@@ -181,7 +188,7 @@ class SettingsActivity : ComponentActivity() {
                         },
                         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
                     ) {
-                        SettingsItems(it)
+                        SettingsItems(it, apiManager)
                     }
                 }
             }
@@ -190,7 +197,7 @@ class SettingsActivity : ComponentActivity() {
 }
 
 @Composable
-fun SettingsItems(padding: PaddingValues) {
+fun SettingsItems(padding: PaddingValues, apiManager: ApiManager) {
     val context = LocalContext.current
     var openDialog by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
@@ -202,6 +209,9 @@ fun SettingsItems(padding: PaddingValues) {
         coroutineScope.launch {
             val newNames = names?.filterIndexed { i, _ -> i != index } ?: emptyList()
             updateNamesList(context, newNames.joinToString(","))
+            apiManager.uploadChanges {
+                Log.d("MY", "Upload finished $it")
+            }
         }
     }
 

@@ -7,10 +7,12 @@ import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.google.gson.GsonBuilder
+import com.google.gson.JsonObject
 import fr.swiftapp.territorymanager.data.Territory
 import fr.swiftapp.territorymanager.data.TerritoryDatabase
 import fr.swiftapp.territorymanager.settings.getApiUrl
 import fr.swiftapp.territorymanager.settings.getLastLocalUpdate
+import fr.swiftapp.territorymanager.settings.getNameList
 import fr.swiftapp.territorymanager.settings.updateLastLocalUpdate
 import fr.swiftapp.territorymanager.settings.updateNamesList
 import kotlinx.coroutines.CoroutineScope
@@ -20,7 +22,10 @@ import kotlinx.coroutines.launch
 import org.json.JSONObject
 import kotlin.coroutines.suspendCoroutine
 
-class ApiManager(private val context: Context, private val db: TerritoryDatabase) {
+class ApiManager(
+    private val context: Context,
+    private val db: TerritoryDatabase
+) {
     private val requestQueue = Volley.newRequestQueue(context)
 
     private val job = Job()
@@ -40,17 +45,37 @@ class ApiManager(private val context: Context, private val db: TerritoryDatabase
         requestQueue.add(req)
     }
 
-    private suspend fun getJson(apiUrl: String): JSONObject = suspendCoroutine { cont ->
-        val req = JsonObjectRequest(Request.Method.GET, apiUrl, null,
-            { res ->
-                cont.resumeWith(Result.success(res))
-            },
-            { error ->
-                cont.resumeWith(Result.failure(error))
-            }
-        )
-        requestQueue.add(req)
-    }
+    private suspend fun getJson(apiUrl: String): JSONObject =
+        suspendCoroutine { cont ->
+            val req = JsonObjectRequest(
+                Request.Method.GET,
+                apiUrl,
+                null,
+                { res ->
+                    cont.resumeWith(Result.success(res))
+                },
+                { error ->
+                    cont.resumeWith(Result.failure(error))
+                }
+            )
+            requestQueue.add(req)
+        }
+
+    private suspend fun uploadJson(apiUrl: String, json: JSONObject): String =
+        suspendCoroutine { cont ->
+            val req = JsonObjectRequest(
+                Request.Method.PATCH,
+                apiUrl,
+                json,
+                { res ->
+                    cont.resumeWith(Result.success(res.toString()))
+                },
+                { error ->
+                    cont.resumeWith(Result.failure(error))
+                }
+            )
+            requestQueue.add(req)
+        }
 
     fun updateLocal(finished: (error: Boolean) -> Unit) {
         scope.launch {
@@ -77,6 +102,44 @@ class ApiManager(private val context: Context, private val db: TerritoryDatabase
                 }
 
                 finished(false)
+            } catch (e: Exception) {
+                Log.e("MY", e.toString())
+                finished(true)
+            }
+        }
+    }
+
+    fun uploadChanges(finished: (error: Boolean) -> Unit) {
+        scope.launch {
+            try {
+                val apiUrl = getApiUrl(context)
+
+                val lastUpdate = getLastUpdate(apiUrl) ?: ""
+                val lastLocalUpdate = getLastLocalUpdate(context)
+
+                if (lastUpdate != lastLocalUpdate) {
+                    updateLocal {
+                        finished(true)
+                    }
+                } else {
+                    db.territoryDao().exportAll().collect { t ->
+                        db.territoryDao().exportAllChanges().collect { tc ->
+                            val names = getNameList(context)
+                            val gson =
+                                GsonBuilder().serializeNulls().disableHtmlEscaping()
+                                    .create()
+
+                            val json = JsonObject()
+                            json.addProperty("names", names)
+                            json.add("territories", gson.toJsonTree(t))
+                            json.add("territories_changes", gson.toJsonTree(tc))
+
+                            val date = uploadJson(apiUrl, JSONObject(json.toString()))
+                            updateLastLocalUpdate(context, date)
+                            Log.d("MY", "date: $date")
+                        }
+                    }
+                }
             } catch (e: Exception) {
                 Log.e("MY", e.toString())
                 finished(true)

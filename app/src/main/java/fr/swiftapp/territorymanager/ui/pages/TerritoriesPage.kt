@@ -1,5 +1,6 @@
 package fr.swiftapp.territorymanager.ui.pages
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
@@ -47,6 +48,7 @@ import androidx.navigation.navOptions
 import fr.swiftapp.territorymanager.R
 import fr.swiftapp.territorymanager.data.Territory
 import fr.swiftapp.territorymanager.data.TerritoryDatabase
+import fr.swiftapp.territorymanager.data.api.ApiManager
 import fr.swiftapp.territorymanager.settings.getNameListAsFlow
 import fr.swiftapp.territorymanager.ui.components.ChipWithSubItems
 import fr.swiftapp.territorymanager.ui.components.MaterialButtonToggleGroup
@@ -67,10 +69,16 @@ fun TerritoriesPage(database: TerritoryDatabase, navController: NavController) {
         database.territoryDao().getAll(if (isShops) 1 else 0).collectAsState(initial = emptyList())
     val finalList = remember { mutableStateListOf<Territory>() }
 
+    val context = LocalContext.current
+    val apiManager = remember { ApiManager(context, database) }
+
     val coroutineScope = rememberCoroutineScope()
     val updateItem: (territory: Territory) -> Unit = { territory ->
         coroutineScope.launch {
             database.territoryDao().update(territory)
+            apiManager.updateLocal {
+                Log.d("MY", "Upload finished $it")
+            }
         }
     }
 
